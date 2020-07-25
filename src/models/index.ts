@@ -11,8 +11,15 @@ export interface PositionModel {
     'SOUTH' = 'South'
   }
 
+export interface Coordinates {
+  x: number;
+  y: number;
+  char: string | '';
+}
+
 export interface CommandModel {
   type: 'ADVANCE' | 'LEFT' | 'RIGHT' | 'QUIT';
+  visitedCoordinates?: Coordinates[];
   step?: number
 }
 
@@ -23,13 +30,9 @@ export interface ActionModel {
 
 export const initBulldozerPos = { x: 0, y: 0, face: Direction.EAST };
 
-export interface simulatorState {
-  bulldozerPos: PositionModel;
-  commandHistory: ActionModel[];
-  report:[]
-}
 export const initialState = {
   bulldozerPos: initBulldozerPos,
   commandHistory: [],
+  travelHistory: [],
   report: []
 };

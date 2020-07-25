@@ -8,7 +8,7 @@ function App() {
   return (
       <div className="App">
         <Layout>
-           <Simulator/>
+          <Simulator/>
         </Layout>
       </div>
   );

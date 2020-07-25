@@ -1,6 +1,5 @@
-import React, { useState, useReducer, useCallback } from "react";
+import React, { useState, useReducer } from "react";
 import {
-  FileUploader,
   LineUnitSquare,
   BulldozerParking,
   ControlPanel,
@@ -10,15 +9,16 @@ import { Grid, Paper, Theme, createStyles } from "@material-ui/core";
 import {
   PositionModel,
   CommandModel,
-  initBulldozerPos,
-  initialState,
+  initialState, Direction,
 } from "../../models";
 import {
   getCurrentDirection,
   getXYCoordinate,
-  calculateCost,
+  getVisitedCoordinates, calculateCost,
 } from "../functions";
 import { makeStyles } from "@material-ui/core/styles";
+import {Report} from "../../components/Report";
+import {Alert, AlertTitle} from "@material-ui/lab";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -45,10 +45,17 @@ const reducer = (
         sitemap: action.payload,
       };
     case "ADVANCE":
+      // @ts-ignore
+      const payload = action.payload as PositionModel;
+      const advanceCommands = state.commandHistory.filter((a: CommandModel) => a.type === 'ADVANCE');
+      const prevPosIndex = advanceCommands.length -1;
+      const prevPos = advanceCommands[prevPosIndex]?.payload || { x: 0, y: 0, face: Direction.EAST };
+      const visitedCoord = getVisitedCoordinates(payload,prevPos, state.sitemap);
       return {
         ...state,
         bulldozerPos: action.payload,
-        commandHistory: [...state.commandHistory, { ...action }],
+        commandHistory: [...state.commandHistory, { ...action, visitedCoordinates: visitedCoord }, ],
+        travelHistory:  state.travelHistory
       };
     case "LEFT":
       return {
@@ -69,8 +76,8 @@ const reducer = (
         commandHistory: [...state.commandHistory, { ...action }],
       };
     case "QUIT":
-      const tmp = calculateCost(state.commandHistory, state.sitemap);
-      console.log(tmp);
+      const fuelCost = calculateCost(state.commandHistory, state.sitemap);
+      console.log(fuelCost);
       return {
         ...state,
         report: calculateCost(state.commandHistory, state.sitemap),
@@ -83,6 +90,7 @@ const reducer = (
 export const Simulator: React.FunctionComponent = () => {
   const [resultMap, setresultMap] = useState(new Map());
   const [boundary, setSiteMapBoundary] = useState({ x: 0, y: 0 });
+  const [error, setError] = useState({ error: false, message: '' });
   const [state, dispatch] = useReducer(reducer, initialState);
   const classes = useStyles();
   const showVehicleParked =
@@ -90,8 +98,7 @@ export const Simulator: React.FunctionComponent = () => {
 
   const createSiteMap = (arr: string[]) => {
     const charMapObject = new Map();
-    arr
-      .filter((line) => !!line)
+    arr.filter((line) => !!line)
       .map((line, index) => {
         charMapObject.set(index, line);
       });
@@ -99,11 +106,13 @@ export const Simulator: React.FunctionComponent = () => {
     setSiteMapBoundary({ x: charMapObject.get(0).split('').length , y: charMapObject.size});
     dispatch({ type: "SITEMAP", payload: charMapObject });
   };
+  const showError = (message: string) => setError({ error: true, message: message });
+
   const handleCommand = (args: CommandModel) => {
     const { type, step } = args;
     dispatch({
       type,
-      payload: getXYCoordinate(type, state.bulldozerPos, boundary, step),
+      payload: getXYCoordinate(type, state.bulldozerPos, boundary, showError, step),
     });
   };
   return (
@@ -124,7 +133,7 @@ export const Simulator: React.FunctionComponent = () => {
             <Grid item xs={2}>
               <BulldozerParking parked={showVehicleParked} />
             </Grid>
-            {resultMap.size > 0 &&
+            {!error.error && resultMap.size > 0 &&
               Array.from(resultMap.keys()).map((key) => (
                 <LineUnitSquare
                   key={key}
@@ -133,10 +142,17 @@ export const Simulator: React.FunctionComponent = () => {
                   currentBDPosition={state.bulldozerPos}
                 />
               ))}
+            { error.error &&
+            (<Alert severity="error">
+              <AlertTitle>Error</AlertTitle>
+              {error.message} — <strong>Check the Cost report for clearing this land</strong>
+            </Alert>)
+
+            }
           </Paper>
         </Grid>
         <Grid item xs={12}>
-          <Paper className={classes.paper}>{/* <Report> */}</Paper>
+          <Paper className={classes.paper}><Report /></Paper>
         </Grid>
       </Grid>
     </div>

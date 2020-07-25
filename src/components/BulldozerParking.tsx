@@ -1,11 +1,10 @@
-import { makeStyles, Box, IconButton } from "@material-ui/core";
+import { makeStyles, Box } from "@material-ui/core";
 import {
   LocalParkingRounded,
   DriveEta,
   ArrowForward,
 } from "@material-ui/icons";
-import React, { memo, NamedExoticComponent } from "react";
-import classes from "*.module.css";
+import React, { memo } from "react";
 
 interface BDProps {
   parked: boolean;

@@ -1,4 +1,4 @@
-import { PositionModel, CommandModel, Direction, initBulldozerPos, ActionModel } from "../../models";
+import {PositionModel, Coordinates, Direction, CommandModel} from "../../models";
 
 export const getCurrentDirection = (
     type: string,
@@ -36,6 +36,7 @@ export const getCurrentDirection = (
     type: "ADVANCE" | "LEFT" | "RIGHT" | "QUIT",
     currentPosition: PositionModel,
     boundary: { x: number; y: number },
+    showError: (message: string) => void,
     step?: number
   ): PositionModel => {
     const newDirection = getCurrentDirection(type, currentPosition);
@@ -43,16 +44,16 @@ export const getCurrentDirection = (
       switch (newDirection) {
         case Direction.EAST:
           if (currentPosition.x + step  > boundary.x) {
-            throw Error("Out of Sitemap boundary");
+            showError("Out of Sitemap boundary");
           }
           return {
             ...currentPosition,
-            x: currentPosition.x + step,
+            x: currentPosition.x === 0 ? (currentPosition.x + step -1) : (currentPosition.x + step),
             face: newDirection,
           };
         case Direction.NORTH:
           if (currentPosition.y + step  > boundary.y) {
-            throw Error("Out of Sitemap boundary");
+            showError("Out of Sitemap boundary");
           }
           return {
             ...currentPosition,
@@ -61,7 +62,7 @@ export const getCurrentDirection = (
           };
         case Direction.SOUTH:
           if (currentPosition.y + step  > boundary.y) {
-            throw Error("Out of Sitemap boundary");
+            showError("Out of Sitemap boundary");
           }
           return {
             ...currentPosition,
@@ -70,7 +71,7 @@ export const getCurrentDirection = (
           };
         case Direction.WEST:
           if (currentPosition.x + step  > boundary.x) {
-            throw Error("Out of Sitemap boundary");
+            showError("Out of Sitemap boundary");
           }
           return {
             ...currentPosition,
@@ -83,32 +84,31 @@ export const getCurrentDirection = (
     }
   };
 
-  interface Coordinates {
-    x: number;
-    y: number;
-  }
-
-  const getVisitedCoordinates = (curPos: PositionModel, prevPosition: PositionModel): Coordinates[] => {
-    let coordinatesVisited = [];
+  export const getVisitedCoordinates = (curPos: PositionModel, prevPosition: PositionModel, sitemap: Map<number, string>): Coordinates[] => {
+    let coordinatesVisited: Coordinates[] = [];
     switch(curPos.face){
       case Direction.EAST:
       for (let i = prevPosition.x; i <= curPos.x; i++ ) {
-        coordinatesVisited.push({ x: i , y: prevPosition.y})
+        const character = getXYCharFromMap(i, prevPosition.y, sitemap);
+        coordinatesVisited.push({x: i, y: prevPosition.y, char: character} as Coordinates)
       }
       break;
       case Direction.WEST:
-        for (let i = prevPosition.x; i <= curPos.x; i++ ) {
-          coordinatesVisited.push({ x: i , y: prevPosition.y})
+        for (let i = curPos.x; i <= prevPosition.x; i++ ) {
+          const character = getXYCharFromMap(i, prevPosition.y, sitemap);
+          coordinatesVisited.push({ x: i , y: prevPosition.y, char: character} as Coordinates)
         }
         break;
      case Direction.NORTH:
         for (let i = curPos.y; i <= prevPosition.y; i++ ) {
-            coordinatesVisited.push({ x: curPos.x , y: i})
+          const character = getXYCharFromMap(curPos.x, i, sitemap);
+            coordinatesVisited.push({ x: curPos.x , y: i, char: character} as Coordinates)
           }
         break;  
         case Direction.SOUTH:
           for (let i = prevPosition.y; i <= curPos.y; i++ ) {
-              coordinatesVisited.push({ x: curPos.x , y: i})
+            const character = getXYCharFromMap(curPos.x, i, sitemap);
+              coordinatesVisited.push({ x: curPos.x , y: i, char: character} as Coordinates)
             }
           break;
     }
@@ -116,27 +116,42 @@ export const getCurrentDirection = (
 
   }
 
-  export const calculateCost = (actions: ActionModel[],
-     sitemap: Map<number, string>): number => {
-       let totalCoordVisited: any[] = [];
+  export const calculateCost = (actions: CommandModel[],
+     sitemap: Map<number, string>): any[] => {
        const advanceCommands = actions.filter(a => a.type === 'ADVANCE');
-       advanceCommands.forEach((a, index) => {
-         let actionCoordVisited = [];
-         if(index === 0) {
-          actionCoordVisited = getVisitedCoordinates(a.payload, { x: 0, y: 0, face: Direction.EAST});
-         } else {
-          actionCoordVisited = getVisitedCoordinates(a.payload, advanceCommands[index -1].payload);
-         }
-          console.log('coord per action', actionCoordVisited);
-          console.log('action', a)
-
-        totalCoordVisited = [...totalCoordVisited, ...actionCoordVisited]
-        
-console.log(totalCoordVisited);
-
+       const directionCommands = actions.filter(a => ['LEFT', 'RIGHT'].includes(a.type));
+       console.log(directionCommands);
+       let actionCostArray: any[] = [];
+       const allVisitedCoordinates = advanceCommands.map(a => a.visitedCoordinates).flat();
+       advanceCommands.forEach(action => {
+         actionCostArray.push({ name: `Move ${action.step} ${action.type} `,
+           fuelCost: getActionCost(action.visitedCoordinates as Coordinates[], allVisitedCoordinates)});
        })
-       
-  
-       return 230;
+       return actionCostArray;
 
   }
+
+  const getXYCharFromMap = (XPos: number, YPos: number, sitemap: Map<number, string>) => {
+    const line = sitemap.get(YPos);
+    const char = line?.split('')[XPos];
+    return char;
+}
+
+const getActionCost = (actionCoordinates: Coordinates[], journeyCoordinates: Coordinates[]) => {
+    let accCost = 0;
+  actionCoordinates.forEach(value => {
+    const alreadyCleared = journeyCoordinates.filter(jC => jC.x === value.x && jC.y === value.y).length > 1
+    const cost = getFuelCost(value, alreadyCleared);
+    accCost = accCost + cost;
+  });
+  return accCost;
+}
+
+
+const getFuelCost = (pV: Coordinates, cleared: boolean):number => {
+  return ((pV.char === 't' || pV.char === 'r') && !cleared) ? 2 : 1;
+}
+
+
+
+

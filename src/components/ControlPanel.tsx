@@ -7,7 +7,7 @@ import {
   IconButton,
   Typography
 } from "@material-ui/core";
-import { ChevronRightRounded, ChevronLeftRounded, FastForwardRounded, ExitToAppRounded, Label } from "@material-ui/icons";
+import { ChevronRightRounded, ChevronLeftRounded, FastForwardRounded, ExitToAppRounded } from "@material-ui/icons";
 import React, { useState } from "react";
 import { CommandModel } from "../models";
 

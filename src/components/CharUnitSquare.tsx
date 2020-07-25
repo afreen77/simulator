@@ -14,8 +14,8 @@ import { PositionModel } from "../models";
 const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(1),
-    width: theme.spacing(10),
-    height: theme.spacing(10),
+    width: theme.spacing(7),
+    height: theme.spacing(7),
   },
   icon: {
     "&:hover": {
@@ -122,15 +122,6 @@ export const CharUnitSquare = (props: any) => {
   useEffect(() => {
     setTimeout(() => setHideVehicle(true), bulldozerPos.y * 1000);
   }, [bulldozerPos]);
-
-  useEffect(() => {
-    if(position.x === bulldozerPos.x && position.y === bulldozerPos.y) {
-      console.log('charPosition: ',position);
-      console.log('bulldozerPos: ',bulldozerPos);
-      // handleBulldozerVisited()
-    }
-    
-  }, [position, bulldozerPos]);
 
   return (
     <Paper className={classes.paper} variant={"outlined"} square>

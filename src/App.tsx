@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import {Simulator} from "./app/pages/Simulator";
-import Layout from "./containers/Layout/Layout";
+import Layout from "./app/layout/Layout";
 
 
 function App() {

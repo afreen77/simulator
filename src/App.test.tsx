@@ -1,9 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import App from './App';
+import { ControlPanel} from "./app/components";
 
-test('renders learn react link', () => {
-  const { getByText } = render(<App />);
-  const linkElement = getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+test('renders Control Panel Left Button', () => {
+  const handleCommand= () => jest.fn;
+  const { getByTestId } = render(<ControlPanel handleCommand={() => handleCommand}  />);
+  const LeftIcon = getByTestId('left');
+  expect(LeftIcon).toBeInTheDocument();
 });

@@ -18,6 +18,9 @@ interface Item { name: string, quantity: number, cost: number}
 
 export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
     const classes = useStyles();
+    if (rows.length === 0) {
+        return (<></>)
+    }
 
     return (
         <TableContainer component={Paper}>
@@ -42,5 +45,5 @@ export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
                 </TableBody>
             </Table>
         </TableContainer>
-    );
+        )
 }

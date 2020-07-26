@@ -33,6 +33,5 @@ export const initBulldozerPos = { x: -1, y: -1, face: Direction.EAST };
 export const initialState = {
   bulldozerPos: initBulldozerPos,
   commandHistory: [],
-  travelHistory: [],
   report: []
 };

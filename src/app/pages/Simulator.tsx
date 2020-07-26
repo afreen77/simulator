@@ -7,18 +7,16 @@ import {
 } from "../components";
 import { Grid, Paper, Theme, createStyles } from "@material-ui/core";
 import {
-  PositionModel,
   CommandModel,
-  initialState, Direction,
+  initialState,
 } from "../../models";
 import {
-  getCurrentDirection,
   getXYCoordinate,
-  getVisitedCoordinates, calculateCost,
 } from "../functions";
 import { makeStyles } from "@material-ui/core/styles";
 import {Report} from "../components/Report";
 import {Alert, AlertTitle} from "@material-ui/lab";
+import {simulatorReducer} from "../reducer";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -33,62 +31,12 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const reducer = (
-  state: any,
-  action: { type: string; payload: PositionModel | Map<number, string> }
-) => {
-
-  switch (action.type) {
-    case "SITEMAP":
-      return {
-        ...state,
-        sitemap: action.payload,
-      };
-    case "ADVANCE":
-      // @ts-ignore
-      const payload = action.payload as PositionModel;
-      const advanceCommands = state.commandHistory.filter((a: CommandModel) => a.type === 'ADVANCE');
-      const prevPosIndex = advanceCommands.length -1;
-      const prevPos = advanceCommands[prevPosIndex]?.payload || { x: 0, y: 0, face: Direction.EAST };
-      const visitedCoord = getVisitedCoordinates(payload,prevPos, state.sitemap);
-      return {
-        ...state,
-        bulldozerPos: action.payload,
-        commandHistory: [...state.commandHistory, { ...action, visitedCoordinates: visitedCoord }, ],
-      };
-    case "LEFT":
-      return {
-        ...state,
-        bulldozerPos: {
-          ...state.bulldozerPos,
-          face: getCurrentDirection(action.type, state.bulldozerPos),
-        },
-        commandHistory: [...state.commandHistory, { ...action }],
-      };
-    case "RIGHT":
-      return {
-        ...state,
-        bulldozerPos: {
-          ...state.bulldozerPos,
-          face: getCurrentDirection(action.type, state.bulldozerPos),
-        },
-        commandHistory: [...state.commandHistory, { ...action }],
-      };
-    case "QUIT":
-      return {
-        ...state,
-        report: calculateCost(state.commandHistory, state.sitemap),
-      };
-    default:
-      throw new Error('Something went wrong');
-  }
-};
 
 export const Simulator: React.FunctionComponent = () => {
   const [resultMap, setresultMap] = useState(new Map());
   const [boundary, setSiteMapBoundary] = useState({ x: 0, y: 0 });
   const [error, setError] = useState({ error: false, message: '' });
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(simulatorReducer, initialState);
   const classes = useStyles();
   const showVehicleParked =
     state.bulldozerPos.x === -1 && state.bulldozerPos.y === -1;
@@ -106,7 +54,6 @@ export const Simulator: React.FunctionComponent = () => {
     setSiteMapBoundary({ x: charMapObject.get(0).length , y: charMapObject.size});
   };
   const showError = (message: string) => {
-    // handleCommand({ type: 'QUIT' });
     setError({ error: true, message: message });
   }
 
@@ -127,7 +74,7 @@ export const Simulator: React.FunctionComponent = () => {
         </Grid>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
-            <ControlPanel handleCommand={handleCommand} />
+            <ControlPanel currentBDPosition={state.bulldozerPos} handleCommand={handleCommand} />
           </Paper>
         </Grid>
         <Grid item xs={9}>

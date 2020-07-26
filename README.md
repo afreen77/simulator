@@ -21,7 +21,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br />
 Your app is ready to be deployed!
 
-### `npx run serve -s build`
+### `npx serve -s build`
 
 **Note: npx is available with newer versions of npm!**
 
@@ -31,5 +31,6 @@ Your app is ready to be deployed!
 * If the user goes out of boundary, hits a protected tree or clicks Exit button, itemised cost report will be displayed
 
 ## Design Approach
+Design approach has been summarised in the document 'Design Approach' in root directory
 
 

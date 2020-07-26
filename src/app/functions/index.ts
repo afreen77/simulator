@@ -124,7 +124,7 @@ export const getCurrentDirection = (
        const allVisitedCoordinates = advanceCommands.map(a => a.visitedCoordinates).flat();
        advanceCommands.forEach(action => {
          actionCostArray.push(
-             getActionFuelCost(action.type, action.visitedCoordinates as Coordinates[], allVisitedCoordinates),
+             getActionFuelCost(action.type, action.visitedCoordinates as Coordinates[], allVisitedCoordinates as Coordinates[]),
          );
        })
     actionCostArray.push({
@@ -133,7 +133,7 @@ export const getCurrentDirection = (
       cost: actions.length
     },
         getPaintCost(allVisitedCoordinates as Coordinates[]),
-        unClearedSquaresCost(allVisitedCoordinates, sitemap));
+        unClearedSquaresCost(allVisitedCoordinates as Coordinates[], sitemap));
 
        return actionCostArray;
 

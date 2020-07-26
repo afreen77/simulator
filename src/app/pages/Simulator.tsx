@@ -4,7 +4,7 @@ import {
   BulldozerParking,
   ControlPanel,
   Title,
-} from "../../components";
+} from "../components";
 import { Grid, Paper, Theme, createStyles } from "@material-ui/core";
 import {
   PositionModel,
@@ -17,7 +17,7 @@ import {
   getVisitedCoordinates, calculateCost,
 } from "../functions";
 import { makeStyles } from "@material-ui/core/styles";
-import {Report} from "../../components/Report";
+import {Report} from "../components/Report";
 import {Alert, AlertTitle} from "@material-ui/lab";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -37,7 +37,7 @@ const reducer = (
   state: any,
   action: { type: string; payload: PositionModel | Map<number, string> }
 ) => {
-  console.log(state);
+
   switch (action.type) {
     case "SITEMAP":
       return {
@@ -55,7 +55,6 @@ const reducer = (
         ...state,
         bulldozerPos: action.payload,
         commandHistory: [...state.commandHistory, { ...action, visitedCoordinates: visitedCoord }, ],
-        travelHistory:  state.travelHistory
       };
     case "LEFT":
       return {
@@ -76,8 +75,6 @@ const reducer = (
         commandHistory: [...state.commandHistory, { ...action }],
       };
     case "QUIT":
-      const fuelCost = calculateCost(state.commandHistory, state.sitemap);
-      console.log(fuelCost);
       return {
         ...state,
         report: calculateCost(state.commandHistory, state.sitemap),
@@ -94,25 +91,30 @@ export const Simulator: React.FunctionComponent = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const classes = useStyles();
   const showVehicleParked =
-    state.bulldozerPos.x === 0 && state.bulldozerPos.y === 0;
+    state.bulldozerPos.x === -1 && state.bulldozerPos.y === -1;
 
   const createSiteMap = (arr: string[]) => {
     const charMapObject = new Map();
     arr.filter((line) => !!line)
-      .map((line, index) => {
-        charMapObject.set(index, line);
-      });
-    setresultMap(charMapObject);
-    setSiteMapBoundary({ x: charMapObject.get(0).split('').length , y: charMapObject.size});
+        .map((line, index) => {
+          charMapObject.set(index, line);
+        });
+
     dispatch({ type: "SITEMAP", payload: charMapObject });
+    setresultMap(charMapObject);
+
+    setSiteMapBoundary({ x: charMapObject.get(0).length , y: charMapObject.size});
   };
-  const showError = (message: string) => setError({ error: true, message: message });
+  const showError = (message: string) => {
+    // handleCommand({ type: 'QUIT' });
+    setError({ error: true, message: message });
+  }
 
   const handleCommand = (args: CommandModel) => {
     const { type, step } = args;
     dispatch({
       type,
-      payload: getXYCoordinate(type, state.bulldozerPos, boundary, showError, step),
+      payload: getXYCoordinate(type, state.bulldozerPos, boundary, showError, state.sitemap, step),
     });
   };
   return (
@@ -145,15 +147,15 @@ export const Simulator: React.FunctionComponent = () => {
             { error.error &&
             (<Alert severity="error">
               <AlertTitle>Error</AlertTitle>
-              {error.message} — <strong>Check the Cost report for clearing this land</strong>
+              {error.message} — <strong>Please check the Cost report for clearing this land</strong>
             </Alert>)
 
             }
           </Paper>
         </Grid>
-        <Grid item xs={12}>
-          <Paper className={classes.paper}><Report /></Paper>
-        </Grid>
+          <Grid item xs={12}>
+            <Paper className={classes.paper}><Report rows = { state.report }/></Paper>
+          </Grid>
       </Grid>
     </div>
   );

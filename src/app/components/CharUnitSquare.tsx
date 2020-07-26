@@ -9,7 +9,7 @@ import {
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
 import { Slide, Grid } from "@material-ui/core";
-import { PositionModel } from "../models";
+import { PositionModel } from "../../models";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -82,7 +82,7 @@ const getVehicle = (
   hideVehicle: boolean,
   styleClass: string
 ) => {
-  if (p1.x === p2.x && p1.x !== 0) {
+  if (p1.x === p2.x) {
     return p1.y < p2.y ? (
       <Slide
         direction={getSlideDirection(p1.face) || "right"}

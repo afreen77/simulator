@@ -28,7 +28,7 @@ export interface ActionModel {
   payload: PositionModel;
 }
 
-export const initBulldozerPos = { x: 0, y: 0, face: Direction.EAST };
+export const initBulldozerPos = { x: -1, y: -1, face: Direction.EAST };
 
 export const initialState = {
   bulldozerPos: initBulldozerPos,

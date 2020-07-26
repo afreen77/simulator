@@ -14,20 +14,9 @@ const useStyles = makeStyles({
     },
 });
 
-function createData(name: string, cost: number) {
-    return { name, cost };
-}
+interface Item { name: string, quantity: number, cost: number}
 
-const rows = [
-    createData('Communication overhead per command sent to\n' +
-        'bulldozer operator', 0),
-    createData('Fuel', 0),
-    createData('Number of Uncleared square at end of simulation', 0),
-    createData('Uncleared square at end of simulation', 0),
-    createData('Repairing paint damage to bulldozer clearable tree', 0),
-];
-
-export const Report: React.FC<any> = () => {
+export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
     const classes = useStyles();
 
     return (
@@ -36,15 +25,17 @@ export const Report: React.FC<any> = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell>Command</TableCell>
+                        <TableCell align="right">Quanitity</TableCell>
                         <TableCell align="right">Cost</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row) => (
+                    {rows.map((row: Item) => (
                         <TableRow key={row.name}>
                             <TableCell component="th" scope="row">
                                 {row.name}
                             </TableCell>
+                            <TableCell align="right">{row.quantity}</TableCell>
                             <TableCell align="right">{row.cost}</TableCell>
                         </TableRow>
                     ))}

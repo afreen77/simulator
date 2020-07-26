@@ -9,7 +9,7 @@ import {
 } from "@material-ui/core";
 import { ChevronRightRounded, ChevronLeftRounded, FastForwardRounded, ExitToAppRounded } from "@material-ui/icons";
 import React, { useState } from "react";
-import { CommandModel } from "../models";
+import { CommandModel } from "../../models";
 
 const useStyles = makeStyles((theme) => ({
   textField: {

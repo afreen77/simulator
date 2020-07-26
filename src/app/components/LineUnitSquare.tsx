@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { CharUnitSquare } from "./CharUnitSquare"
 import { Grid } from '@material-ui/core';
-import { PositionModel } from '../models';
+import { PositionModel } from '../../models';
 
 interface LineUnitSquareProps 
 { line: string; rowId: number; currentBDPosition: PositionModel; }

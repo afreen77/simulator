@@ -157,9 +157,9 @@ const getActionFuelCost = (actionName: string, actionCoordinates: Coordinates[],
 
 const unClearedSquaresCost = (journeyCoordinates: Coordinates[], sitemap: Map<number, string>) => {
   let unVisitedSquares: any = []
-  sitemap.forEach((xString, y) => {
+  sitemap.forEach((xString, y): void => {
     const xArray = xString.split('');
-    xArray.map((x, i) => {
+    xArray.forEach((x, i) => {
       if (journeyCoordinates.filter(jC => jC.x === i && jC.y === y).length === 0) {
         unVisitedSquares.push({ x: i, y });
       }

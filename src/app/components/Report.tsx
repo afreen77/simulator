@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -14,9 +14,21 @@ const useStyles = makeStyles({
     },
 });
 
-interface Item { name: string, quantity: number, cost: number}
+interface Item {
+    name: string,
+    quantity: number,
+    cost: number
+}
 
-export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
+const total = (rows: Item[]) => rows.reduce((a, b) => ({
+    name: 'Total',
+    quantity: a.quantity || 0 + b.quantity || 0,
+    cost: a.cost + b.cost
+}), {name: 'Total', quantity: 0, cost: 0});
+
+export const Report: React.FC<{ rows: Item[] }> = ({rows}) => {
+    const totalItem = rows && total(rows);
+    const newRows: Item[] = [...rows, totalItem];
     const classes = useStyles();
     if (rows.length === 0) {
         return (<></>)
@@ -28,12 +40,12 @@ export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
                 <TableHead>
                     <TableRow>
                         <TableCell>Command</TableCell>
-                        <TableCell align="right">Quanitity</TableCell>
+                        <TableCell align="right">Quantity</TableCell>
                         <TableCell align="right">Cost</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map((row: Item) => (
+                    {newRows.map((row: Item) => (
                         <TableRow key={row.name}>
                             <TableCell component="th" scope="row">
                                 {row.name}
@@ -45,5 +57,5 @@ export const Report: React.FC<{ rows: Item[]}> = ({ rows }) => {
                 </TableBody>
             </Table>
         </TableContainer>
-        )
+    )
 }

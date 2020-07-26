@@ -44,9 +44,7 @@ export const Simulator: React.FunctionComponent = () => {
   const createSiteMap = (arr: string[]) => {
     const charMapObject = new Map();
     arr.filter((line) => !!line)
-        .map((line, index) => {
-          charMapObject.set(index, line);
-        });
+        .map((line, index) => charMapObject.set(index, line));
 
     dispatch({ type: "SITEMAP", payload: charMapObject });
     setresultMap(charMapObject);
